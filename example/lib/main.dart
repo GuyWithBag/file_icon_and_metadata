@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:file_icon_and_metadata/file_icon_and_metadata.dart';
@@ -17,6 +18,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+  Uint8List? _iconBytes;
   final _fileIconAndMetadataPlugin = FileIconAndMetadata();
 
   @override
@@ -25,25 +27,32 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
+  // Initialize and load platform/version and icon data.
   Future<void> initPlatformState() async {
     String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
+    Uint8List? iconBytes;
+
+    // Get platform version safely.
     try {
-      platformVersion =
-          await _fileIconAndMetadataPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      platformVersion = await _fileIconAndMetadataPlugin.getPlatformVersion() ??
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
+    // Get file icon data directly as bytes.
+    try {
+      iconBytes = await _fileIconAndMetadataPlugin.getFileIcon(
+          "C:/Users/Administrator/Desktop/Godot_v4.3-stable_win64.exe");
+    } on PlatformException {
+      // Handle errors if needed.
+    }
+
     if (!mounted) return;
 
     setState(() {
       _platformVersion = platformVersion;
+      _iconBytes = iconBytes;
     });
   }
 
@@ -55,7 +64,9 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: _iconBytes != null
+              ? Image.memory(_iconBytes!)
+              : const Text('Nothing to see here'),
         ),
       ),
     );

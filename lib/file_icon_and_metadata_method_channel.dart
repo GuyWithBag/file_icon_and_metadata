@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -11,7 +14,23 @@ class MethodChannelFileIconAndMetadata extends FileIconAndMetadataPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
+  }
+
+  @override
+  Future<Uint8List?> getFileIcon(String path) async {
+    // Use invokeMapMethod when expecting a map to get proper typing.
+    final result = await methodChannel
+        .invokeMapMethod<String, dynamic>('getFileIcon', {'path': path});
+
+    if (result == null || !result.containsKey('icon')) return null;
+
+    final base64Icon = result['icon'];
+    if (base64Icon is! String) return null; // Ensure it's a string
+
+    final iconBytes = base64Decode(base64Icon);
+    return iconBytes;
   }
 }

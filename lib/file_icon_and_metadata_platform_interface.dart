@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'file_icon_and_metadata_method_channel.dart';
@@ -8,7 +10,8 @@ abstract class FileIconAndMetadataPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FileIconAndMetadataPlatform _instance = MethodChannelFileIconAndMetadata();
+  static FileIconAndMetadataPlatform _instance =
+      MethodChannelFileIconAndMetadata();
 
   /// The default instance of [FileIconAndMetadataPlatform] to use.
   ///
@@ -24,6 +27,10 @@ abstract class FileIconAndMetadataPlatform extends PlatformInterface {
   }
 
   Future<String?> getPlatformVersion() {
+    throw UnimplementedError('platformVersion() has not been implemented.');
+  }
+
+  Future<Uint8List?> getFileIcon(String path) {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 }
